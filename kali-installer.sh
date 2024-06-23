@@ -9,3 +9,6 @@ mkdir -p ~/.gf
 cd gf-patterns/
 cp *.json ~/.gf
 cd ..
+sudo apt install nuclei
+go install github.com/hahwul/dalfox/v2@latest
+sudo cp ~/go/bin/dalfox /usr/bin/
